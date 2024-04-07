@@ -28,7 +28,7 @@ func NewCore(ctx context.Context, opts CoreOpts) (*Core, error) {
 		promReg           *prometheus.Registry
 	)
 
-	if opts.ServiceName != nil && *opts.ServiceName != "" {
+	if opts.ServiceName == nil || *opts.ServiceName == "" {
 		return nil, ErrNoServiceName
 	}
 
