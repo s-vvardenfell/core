@@ -1,4 +1,4 @@
-module github.com/s-vvardenfell/IoMITP/core
+module github.com/s-vvardenfell/core
 
 go 1.21.7
 
