@@ -1,7 +1,8 @@
-package core
+package main
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"os"
 
@@ -11,6 +12,10 @@ import (
 	"github.com/rs/zerolog"
 	"go.opentelemetry.io/otel/trace"
 )
+
+type HealthResponse struct {
+	Status string `json:"status"`
+}
 
 type Core struct {
 	Logger            *zerolog.Logger
@@ -69,6 +74,24 @@ func NewCore(ctx context.Context, opts CoreOpts) (*Core, error) {
 		}()
 	}
 
+	// ----- healthcheck server -----
+
+	if opts.HealthCheckAddr != nil {
+		go func() {
+			http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusOK)
+				json.NewEncoder(w).Encode(HealthResponse{Status: "ready"})
+			})
+
+			logger.Info().Str("service", "HealthcheckServer").Msgf("listening at %s", *opts.HealthCheckAddr)
+
+			if err := http.ListenAndServe(*opts.HealthCheckAddr, nil); err != nil {
+				logger.Error().Err(err).Msg("failed to run healthcheck server endpoint")
+			}
+		}()
+	}
+
 	return &Core{
 		Logger:            &logger,
 		HttpTraceProvider: httpTraceProvider,
@@ -76,13 +99,3 @@ func NewCore(ctx context.Context, opts CoreOpts) (*Core, error) {
 		PromReg:           promReg,
 	}, nil
 }
-
-// func (c *Core) Shutdown(ctx context.Context) error {
-// 	if err := c.HttpTraceProvider.Shutdown(ctx); err != nil {
-// 		logger.Fatal().Err(err).Msg("failed to shutting down tracer provider")
-// 	}
-
-// 	if err := c.GrpcTraceProvider.Shutdown(ctx); err != nil {
-// 		logger.Fatal().Err(err).Msg("failed to shutting down tracer provider")
-// 	}
-// }

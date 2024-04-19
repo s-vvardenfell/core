@@ -1,4 +1,4 @@
-package core
+package main
 
 import (
 	"errors"
@@ -10,10 +10,11 @@ var (
 )
 
 type CoreOpts struct {
-	ServiceName    *string
-	JaegerGrpcAddr *string
-	JaegerHttpAddr *string
-	MetricsAddr    *string
+	ServiceName     *string
+	JaegerGrpcAddr  *string
+	JaegerHttpAddr  *string
+	MetricsAddr     *string
+	HealthCheckAddr *string
 }
 
 func InitConfig() CoreOpts {
