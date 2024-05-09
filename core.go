@@ -37,7 +37,7 @@ func NewCore(ctx context.Context, opts CoreOpts) (*Core, error) {
 		return nil, ErrNoServiceName
 	}
 
-	if opts.JaegerHttpAddr != nil {
+	if opts.JaegerHttpAddr != nil && *opts.JaegerHttpAddr != "" {
 		httpTraceProvider, err = initHttpTracer(ctx, *opts.ServiceName, *opts.JaegerHttpAddr)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to init http-trace-provider")
@@ -46,7 +46,7 @@ func NewCore(ctx context.Context, opts CoreOpts) (*Core, error) {
 		logger.Info().Str("service", *opts.ServiceName).Msg("init http trace provider")
 	}
 
-	if opts.JaegerGrpcAddr != nil {
+	if opts.JaegerGrpcAddr != nil && *opts.JaegerHttpAddr != "" {
 		grpcTraceProvider, err = initGrpcTracer(ctx, *opts.ServiceName, *opts.JaegerGrpcAddr)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to init grpc-trace-provider")
